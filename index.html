@@ -312,7 +312,7 @@
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.font = 'bold 76px Courier New';
     ctx.textAlign = 'center'; ctx.fillText('SPEED RUSH', W/2+2, H/2-88);
     centered('SPEED RUSH', H/2-90, 76, '#ff8a80');
-    centered('Press  ENTER  to  Race', H/2-10, 22, '#ffffff');
+    centered('Click  or  Press  ENTER  to  Race', H/2-10, 22, '#ffffff');
     ctx.fillStyle = '#666'; ctx.font = '15px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('↑ W  Accelerate    ↓ S  Brake    ← A  Left    → D  Right', W/2, H/2+30);
     ctx.fillText(`${TOTAL_LAPS} laps around the circuit`, W/2, H/2+56);
@@ -327,7 +327,7 @@
     overlay(.72);
     centered('RACE COMPLETE!', H/2-80, 58, '#ffee00');
     centered(`Total  ${fmtTime(lapTime)}`, H/2+5, 28, '#fff');
-    centered('Press  ENTER  to  Race Again', H/2+60, 20, '#aaa');
+    centered('Click  or  Press  ENTER  to  Race Again', H/2+60, 20, '#aaa');
   }
 
   function render() {
@@ -436,13 +436,22 @@
     canvas = document.getElementById('gameCanvas');
     canvas.width = W; canvas.height = H;
     ctx = canvas.getContext('2d');
+    canvas.setAttribute('tabindex', '0');
+    canvas.style.cursor = 'pointer';
     buildTrack(); addCars();
+
+    function handleActivate() {
+      canvas.focus();
+      if (state === 'start')  startCountdown();
+      if (state === 'finish') reset();
+    }
+
+    canvas.addEventListener('click', handleActivate);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); handleActivate(); }, { passive: false });
+
     document.addEventListener('keydown', e => {
       keys[e.code] = true;
-      if (e.code === 'Enter' || e.code === 'Space') {
-        if (state === 'start')  startCountdown();
-        if (state === 'finish') reset();
-      }
+      if (e.code === 'Enter' || e.code === 'Space') handleActivate();
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
     });
     document.addEventListener('keyup', e => { keys[e.code] = false; });
